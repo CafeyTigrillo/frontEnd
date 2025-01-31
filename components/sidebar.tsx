@@ -14,7 +14,7 @@ import {
 const sidebarItems = [
   { name: "Usuarios", icon: Users, href: "/usuarios" },
   { name: "Clientes", icon: UserCheck, href: "/clients" },
-  { name: "Productos", icon: Coffee, href: "/productos" },
+  { name: "Productos", icon: Coffee, href: "/products" },
   { name: "Mesas y Salones", icon: LayoutGrid, href: "/mesas-salones" },
   { name: "Categorías", icon: Tags, href: "/categorias" },
   { name: "Ventas", icon: ShoppingCart, href: "/ventas" },
