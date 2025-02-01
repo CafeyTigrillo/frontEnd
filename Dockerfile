@@ -4,35 +4,28 @@ FROM node:18-alpine AS builder
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos de configuración y dependencias
+# Copiar los archivos necesarios para instalar dependencias
 COPY package.json package-lock.json ./
 
-# Instala las dependencias necesarias
-RUN npm install
+# Instala las dependencias ignorando los conflictos de dependencias "peer"
+RUN npm install --legacy-peer-deps
 
-# Copia el resto del código de la aplicación
+# Copiar el resto de los archivos del proyecto
 COPY . .
 
-# Construye la aplicación para producción
+# Construir la aplicación
 RUN npm run build
 
-# Etapa 2: Configuración del servidor para servir la aplicación
-FROM node:18-alpine AS runner
+# Etapa 2: Configuración del servidor para producción
+FROM node:18-alpine
 
-# Establece el directorio de trabajo dentro del contenedor
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Establece la variable de entorno para producción
-ENV NODE_ENV=production
+# Copiar los archivos construidos desde la etapa anterior
+COPY --from=builder /app/build ./build
 
-# Copia las dependencias instaladas y el código construido desde la etapa anterior
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
-COPY --from=builder /app/package.json ./package.json
-
-# Expone el puerto en el que la aplicación se ejecutará
+# Exponer el puerto
 EXPOSE 3000
 
 # Comando por defecto para iniciar la aplicación
