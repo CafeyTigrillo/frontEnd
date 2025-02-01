@@ -10,25 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout del código fuente
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. Configurar Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18' # Cambiar según la versión requerida
 
+      # 3. Instalar dependencias con resolución de conflictos
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
+      # 4. Construir el proyecto
       - name: Build the project
         run: npm run build
 
+      # 5. Login a DockerHub
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
+      # 6. Construir y subir la imagen Docker
       - name: Build and push Docker image
         run: |
           docker build -t richard28/frontend:latest .
           docker push richard28/frontend:latest
 
+      # 7. Desplegar en la instancia EC2
+      - name: Deploy to EC2
+        run: |
+          echo "${{ secrets.AWS_SSH_KEY }}" > /tmp/key.pem
+          chmod 400 /tmp/key.pem
+          ssh -o StrictHostKeyChecking=no -i /tmp/key.pem ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} << 'EOF'
+            docker pull richard28/frontend:latest
+            docker-compose up -d
+            exit
+          EOF
