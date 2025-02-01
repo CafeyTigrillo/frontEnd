@@ -29,7 +29,7 @@ type Producto = {
   availability: boolean
 }
 
-const API_URL = "http://localhost:8081/products"
+const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:8080/products"
 
 export default function GestionProductos() {
   const [productos, setProductos] = useState<Producto[]>([])
@@ -316,4 +316,3 @@ export default function GestionProductos() {
     </div>
   )
 }
-
