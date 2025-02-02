@@ -3,24 +3,28 @@ import {
   Users,
   UserCheck,
   Coffee,
-  LayoutGrid,
   Tags,
   ShoppingCart,
   BarChart3,
   Settings,
   ClipboardList,
+  CreditCard,
+  Table,
+  Home,
 } from "lucide-react"
 
 const sidebarItems = [
-  { name: "Usuarios", icon: Users, href: "/usuarios" },
+  { name: "Usuarios", icon: Users, href: "/users" },
   { name: "Clientes", icon: UserCheck, href: "/clients" },
   { name: "Productos", icon: Coffee, href: "/products" },
-  { name: "Mesas y Salones", icon: LayoutGrid, href: "/mesas-salones" },
+  { name: "Mesas", icon: Table, href: "/tables" },
+  { name: "Salones", icon: Home, href: "/halls" },
   { name: "Categorías", icon: Tags, href: "/category" },
-  { name: "Ventas", icon: ShoppingCart, href: "/ventas" },
-  { name: "Órdenes", icon: ClipboardList, href: "/ordenes" },
-  { name: "Análisis", icon: BarChart3, href: "/analisis" },
-  { name: "Configuración", icon: Settings, href: "/configuracion" },
+  { name: "Ventas", icon: ShoppingCart, href: "/sales" },
+  { name: "Órdenes", icon: ClipboardList, href: "/orders" },
+  { name: "Formas de Pago", icon: CreditCard, href: "/payment-methods" },
+  { name: "Análisis", icon: BarChart3, href: "/analysis" },
+  { name: "Configuración", icon: Settings, href: "/configuration" },
 ]
 
 export function Sidebar() {
@@ -46,4 +50,5 @@ export function Sidebar() {
     </div>
   )
 }
+
 
