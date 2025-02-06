@@ -19,7 +19,6 @@ import { Label } from "@/components/ui/label"
 import { PlusCircle, Pencil, Trash2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
-// Tipo para el producto
 type Producto = {
   id_product: number
   name: string
@@ -29,7 +28,7 @@ type Producto = {
   availability: boolean
 }
 
-const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:8080/products"
+const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:8083/products"
 
 export default function GestionProductos() {
   const [productos, setProductos] = useState<Producto[]>([])
@@ -67,6 +66,17 @@ export default function GestionProductos() {
       id_category: Number.parseInt(formData.get("id_category") as string),
       availability: formData.get("availability") === "on",
     }
+
+    // Validar que el nombre no se repita
+    if (productos.some((p) => p.name.toLowerCase() === nuevoProducto.name.toLowerCase())) {
+      toast({
+        title: "Error",
+        description: "Ya existe un producto con este nombre",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
       const response = await fetch(`${API_URL}/create`, {
         method: "POST",
@@ -102,6 +112,23 @@ export default function GestionProductos() {
       id_category: Number.parseInt(formData.get("id_category") as string),
       availability: formData.get("availability") === "on",
     }
+
+    // Validar que el nombre no se repita (excluyendo el producto actual)
+    if (
+      productos.some(
+        (p) =>
+          p.name.toLowerCase() === productoActualizado.name.toLowerCase() &&
+          p.id_product !== productoEditando.id_product,
+      )
+    ) {
+      toast({
+        title: "Error",
+        description: "Ya existe un producto con este nombre",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
       const response = await fetch(`${API_URL}/edit/${productoEditando.id_product}`, {
         method: "PUT",
@@ -316,3 +343,4 @@ export default function GestionProductos() {
     </div>
   )
 }
+
