@@ -18,7 +18,7 @@ const sidebarItems = [
   { name: "Clientes", icon: UserCheck, href: "/clients" },
   { name: "Productos", icon: Coffee, href: "/products" },
   { name: "Mesas", icon: Table, href: "/tables" },
-  { name: "Salones", icon: Home, href: "/halls" },
+  { name: "Salones", icon: Home, href: "/hall" },
   { name: "Categorías", icon: Tags, href: "/category" },
   { name: "Ventas", icon: ShoppingCart, href: "/sales" },
   { name: "Órdenes", icon: ClipboardList, href: "/orders" },
