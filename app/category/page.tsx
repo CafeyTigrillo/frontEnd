@@ -170,7 +170,7 @@ export default function GestionCategorias() {
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
       <main className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-semibold mb-6">Gestión de Categorías</h1>
+        <h1 className="text-3xl font-semibold mb-6">Gestión de Categoríasss</h1>
 
         <div className="flex justify-between items-center mb-4">
           <Dialog>
