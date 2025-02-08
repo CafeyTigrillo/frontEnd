@@ -23,7 +23,7 @@ type Categoria = {
   name: string
 }
 
-const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com/category"
+const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:8082/category"
 
 export default function GestionCategorias() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
