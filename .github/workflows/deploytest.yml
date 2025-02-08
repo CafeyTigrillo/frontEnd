@@ -20,9 +20,9 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t richard28/frontend:latest .
+          docker build -t epgarzonr/frontend:latest .
           echo "${{ secrets.DOCKERHUB_PASSWORD_TEST }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME_TEST }}" --password-stdin
-          docker push richard28/frontend:latest
+          docker push epgarzonr/frontend:latest
 
       - name: Deploy to EC2
         run: |
