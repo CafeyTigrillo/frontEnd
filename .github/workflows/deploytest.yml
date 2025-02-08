@@ -29,7 +29,7 @@ jobs:
           echo "${{ secrets.AWS_SSH_KEY_TEST }}" > /tmp/key.pem
           chmod 400 /tmp/key.pem
           ssh -o StrictHostKeyChecking=no -i /tmp/key.pem ${{ secrets.AWS_USER_TEST }}@${{ secrets.AWS_HOST_TEST }} << 'EOF'
-            docker pull richard28/frontend:latest
+            docker pull epgarzonr/frontend:latest
 
             docker-compose pull
 
