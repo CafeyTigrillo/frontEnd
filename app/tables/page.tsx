@@ -17,26 +17,37 @@ import {
 import { Label } from "@/components/ui/label"
 import { PlusCircle, Pencil, Trash2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 type Mesa = {
   idTable: number
   tableNumber: number
   capacity: number
   idLounge: number
+  hallName?: string // Nuevo campo para el nombre del salón
 }
 
-const API_URL = "http://localhost:9000/tables"
+type Hall = {
+  idHalls: number
+  name: string
+  capacity: number
+}
+
+const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:9000/tables"
+const HALL_API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:9001/halls"
 
 export default function GestionMesas() {
   const [mesas, setMesas] = useState<Mesa[]>([])
   const [mesaEditando, setMesaEditando] = useState<Mesa | null>(null)
   const [mesaEliminando, setMesaEliminando] = useState<Mesa | null>(null)
   const [busqueda, setBusqueda] = useState("")
-  const [hallId, setHallId] = useState<number | null>(null)
+  const [halls, setHalls] = useState<Hall[]>([])
+  const [selectedHallId, setSelectedHallId] = useState<string>("")
   const { toast } = useToast()
 
   useEffect(() => {
     fetchMesas()
+    fetchHalls()
   }, [])
 
   const fetchMesas = async () => {
@@ -44,7 +55,13 @@ export default function GestionMesas() {
       const response = await fetch(`${API_URL}/bring_all`)
       if (!response.ok) throw new Error("Error al obtener las mesas")
       const data = await response.json()
-      setMesas(data)
+      const mesasConNombreSalon = await Promise.all(
+        data.map(async (mesa: Mesa) => ({
+          ...mesa,
+          hallName: await fetchHallName(mesa.idLounge),
+        })),
+      )
+      setMesas(mesasConNombreSalon)
     } catch (error) {
       toast({
         title: "Error",
@@ -54,12 +71,45 @@ export default function GestionMesas() {
     }
   }
 
+  const fetchHalls = async () => {
+    try {
+      const response = await fetch(`${HALL_API_URL}/bring_all`)
+      if (!response.ok) throw new Error("Error al obtener los salones")
+      const data = await response.json()
+      setHalls(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los salones",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const fetchHallName = async (idHall: number): Promise<string> => {
+    try {
+      const response = await fetch(`${HALL_API_URL}/bringHall/${idHall}`)
+      if (!response.ok) throw new Error("Error al obtener el nombre del salón")
+      const data = await response.json()
+      return data.name
+    } catch (error) {
+      console.error("Error fetching hall name:", error)
+      return "Desconocido"
+    }
+  }
+
   const fetchMesasByHall = async (idHall: number) => {
     try {
       const response = await fetch(`${API_URL}/${idHall}`)
       if (!response.ok) throw new Error("Error al obtener las mesas del salón")
       const data = await response.json()
-      setMesas(data)
+      const mesasConNombreSalon = await Promise.all(
+        data.map(async (mesa: Mesa) => ({
+          ...mesa,
+          hallName: await fetchHallName(mesa.idLounge),
+        })),
+      )
+      setMesas(mesasConNombreSalon)
     } catch (error) {
       toast({
         title: "Error",
@@ -162,7 +212,7 @@ export default function GestionMesas() {
     (mesa) =>
       mesa.tableNumber.toString().includes(busqueda) ||
       mesa.capacity.toString().includes(busqueda) ||
-      mesa.idLounge.toString().includes(busqueda),
+      (mesa.hallName && mesa.hallName.toLowerCase().includes(busqueda.toLowerCase())),
   )
 
   return (
@@ -193,8 +243,19 @@ export default function GestionMesas() {
                   <Input id="capacity" name="capacity" type="number" required />
                 </div>
                 <div>
-                  <Label htmlFor="idLounge">ID del Salón</Label>
-                  <Input id="idLounge" name="idLounge" type="number" required />
+                  <Label htmlFor="idLounge">Salón</Label>
+                  <Select name="idLounge" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un salón" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {halls.map((hall) => (
+                        <SelectItem key={hall.idHalls} value={hall.idHalls.toString()}>
+                          {hall.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button type="submit">Guardar Mesa</Button>
               </form>
@@ -209,14 +270,29 @@ export default function GestionMesas() {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
-            <Input
-              type="number"
-              placeholder="ID del Salón"
-              className="w-32"
-              value={hallId || ""}
-              onChange={(e) => setHallId(e.target.value ? Number(e.target.value) : null)}
-            />
-            <Button onClick={() => hallId && fetchMesasByHall(hallId)}>Filtrar por Salón</Button>
+            <Select
+              value={selectedHallId}
+              onValueChange={(value) => {
+                setSelectedHallId(value)
+                if (value) {
+                  fetchMesasByHall(Number(value))
+                } else {
+                  fetchMesas()
+                }
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por Salón" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Todos los salones</SelectItem> {/* Added value prop */}
+                {halls.map((hall) => (
+                  <SelectItem key={hall.idHalls} value={hall.idHalls.toString()}>
+                    {hall.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -225,7 +301,7 @@ export default function GestionMesas() {
             <TableRow>
               <TableHead>Número</TableHead>
               <TableHead>Capacidad</TableHead>
-              <TableHead>ID del Salón</TableHead>
+              <TableHead>Salón</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -234,7 +310,7 @@ export default function GestionMesas() {
               <TableRow key={mesa.idTable}>
                 <TableCell>{mesa.tableNumber}</TableCell>
                 <TableCell>{mesa.capacity}</TableCell>
-                <TableCell>{mesa.idLounge}</TableCell>
+                <TableCell>{mesa.hallName}</TableCell>
                 <TableCell>
                   <Dialog>
                     <DialogTrigger asChild>
@@ -262,8 +338,19 @@ export default function GestionMesas() {
                           <Input id="capacity" name="capacity" type="number" defaultValue={mesa.capacity} required />
                         </div>
                         <div>
-                          <Label htmlFor="idLounge">ID del Salón</Label>
-                          <Input id="idLounge" name="idLounge" type="number" defaultValue={mesa.idLounge} required />
+                          <Label htmlFor="idLounge">Salón</Label>
+                          <Select name="idLounge" defaultValue={mesa.idLounge.toString()} required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona un salón" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {halls.map((hall) => (
+                                <SelectItem key={hall.idHalls} value={hall.idHalls.toString()}>
+                                  {hall.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         <Button type="submit">Actualizar Mesa</Button>
                       </form>
@@ -279,8 +366,8 @@ export default function GestionMesas() {
                       <DialogHeader>
                         <DialogTitle>Confirmar Eliminación</DialogTitle>
                         <DialogDescription>
-                          ¿Estás seguro de que quieres eliminar la mesa número {mesaEliminando?.tableNumber}? Esta
-                          acción no se puede deshacer.
+                          ¿Estás seguro de que quieres eliminar la mesa número {mesaEliminando?.tableNumber} del salón{" "}
+                          {mesaEliminando?.hallName}? Esta acción no se puede deshacer.
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter>
