@@ -14,17 +14,14 @@ import {
 } from "lucide-react"
 
 const sidebarItems = [
-  { name: "Usuarios", icon: Users, href: "/users" },
   { name: "Clientes", icon: UserCheck, href: "/clients" },
   { name: "Productos", icon: Coffee, href: "/products" },
   { name: "Mesas", icon: Table, href: "/tables" },
   { name: "Salones", icon: Home, href: "/hall" },
   { name: "Categorías", icon: Tags, href: "/category" },
-  { name: "Ventas", icon: ShoppingCart, href: "/sales" },
   { name: "Órdenes", icon: ClipboardList, href: "/orders" },
   { name: "Formas de Pago", icon: CreditCard, href: "/payment-methods" },
   { name: "Análisis", icon: BarChart3, href: "/analysis" },
-  { name: "Configuración", icon: Settings, href: "/configuration" },
 ]
 
 export function Sidebar() {
