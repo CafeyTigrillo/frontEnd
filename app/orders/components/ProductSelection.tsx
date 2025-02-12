@@ -42,7 +42,7 @@ type ProductSelectionProps = {
 
 const API_URL = {
   categories: "http://ec2-13-216-183-248.compute-1.amazonaws.com:8082/category",
-  productsByCategory: "http://ec2-13-216-183-248.compute-1.amazonaws.com:8082/category/products",
+  productsByCategory: "http://ec2-13-216-183-248.compute-1.amazonaws.com:8086/category/products",
 }
 
 export function ProductSelection({

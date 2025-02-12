@@ -36,7 +36,7 @@ type InvoiceGenerationProps = {
 }
 
 const API_URL = {
-  customers: "http://localhost:8081/clients",
+  customers: "http://ec2-13-216-183-248.compute-1.amazonaws.com:8081/clients",
 }
 
 export function InvoiceGeneration({ order, onNewOrder }: InvoiceGenerationProps) {
