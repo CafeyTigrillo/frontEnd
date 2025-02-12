@@ -95,7 +95,7 @@ export function InvoiceGeneration({ order, onNewOrder }: InvoiceGenerationProps)
     }
 
     try {
-      const response = await fetch("http://localhost:9003/survey/send-mail", {
+      const response = await fetch("http://ec2-13-216-183-248.compute-1.amazonaws.com:9003/survey/send-mail", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
