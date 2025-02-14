@@ -18,54 +18,46 @@ import { Label } from "@/components/ui/label"
 import { PlusCircle, Pencil, Trash2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
-type Categoria = {
-  id_category: number
+type Hall = {
+  idHalls: number
   name: string
+  capacity: number
 }
 
-const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:8082/category"
+const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:9001/halls"
 
-export default function GestionCategorias() {
-  const [categorias, setCategorias] = useState<Categoria[]>([])
-  const [categoriaEditando, setCategoriaEditando] = useState<Categoria | null>(null)
-  const [categoriaEliminando, setCategoriaEliminando] = useState<Categoria | null>(null)
+export default function GestionSalones() {
+  const [salones, setSalones] = useState<Hall[]>([])
+  const [salonEditando, setSalonEditando] = useState<Hall | null>(null)
+  const [salonEliminando, setSalonEliminando] = useState<Hall | null>(null)
   const [busqueda, setBusqueda] = useState("")
   const { toast } = useToast()
 
   useEffect(() => {
-    fetchCategorias()
+    fetchSalones()
   }, [])
 
-  const fetchCategorias = async () => {
+  const fetchSalones = async () => {
     try {
       const response = await fetch(`${API_URL}/bring_all`)
-      if (!response.ok) throw new Error("Error al obtener las categorías")
+      if (!response.ok) throw new Error("Error al obtener los salones")
       const data = await response.json()
-      setCategorias(data)
+      setSalones(data)
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudieron cargar las categorías",
+        description: "No se pudieron cargar los salones",
         variant: "destructive",
       })
     }
   }
 
-  const handleAddCategoria = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddSalon = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
-    const nuevaCategoria = {
+    const nuevoSalon = {
       name: formData.get("name") as string,
-    }
-
-    // Validar que el nombre no se repita
-    if (categorias.some((c) => c.name.toLowerCase() === nuevaCategoria.name.toLowerCase())) {
-      toast({
-        title: "Error",
-        description: "Ya existe una categoría con este nombre",
-        variant: "destructive",
-      })
-      return
+      capacity: Number(formData.get("capacity")),
     }
 
     try {
@@ -74,122 +66,112 @@ export default function GestionCategorias() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(nuevaCategoria),
+        body: JSON.stringify(nuevoSalon),
       })
-      if (!response.ok) throw new Error("Error al crear la categoría")
-      await fetchCategorias()
+      if (!response.ok) throw new Error("Error al crear el salón")
+      await fetchSalones()
       toast({
         title: "Éxito",
-        description: "Categoría creada correctamente",
+        description: "Salón creado correctamente",
       })
       event.currentTarget.reset()
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo crear la categoría",
+        description: "No se pudo crear el salón",
         variant: "destructive",
       })
     }
   }
 
-  const handleEditCategoria = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEditSalon = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!categoriaEditando) return
+    if (!salonEditando) return
     const formData = new FormData(event.currentTarget)
-    const categoriaActualizada = {
+    const salonActualizado = {
       name: formData.get("name") as string,
-    }
-
-    // Validar que el nombre no se repita (excluyendo la categoría actual)
-    if (
-      categorias.some(
-        (c) =>
-          c.name.toLowerCase() === categoriaActualizada.name.toLowerCase() &&
-          c.id_category !== categoriaEditando.id_category,
-      )
-    ) {
-      toast({
-        title: "Error",
-        description: "Ya existe una categoría con este nombre",
-        variant: "destructive",
-      })
-      return
+      capacity: Number(formData.get("capacity")),
     }
 
     try {
-      const response = await fetch(`${API_URL}/edit/${categoriaEditando.id_category}`, {
+      const response = await fetch(`${API_URL}/edit/${salonEditando.idHalls}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(categoriaActualizada),
+        body: JSON.stringify(salonActualizado),
       })
-      if (!response.ok) throw new Error("Error al actualizar la categoría")
-      await fetchCategorias()
+      if (!response.ok) throw new Error("Error al actualizar el salón")
+      await fetchSalones()
       toast({
         title: "Éxito",
-        description: "Categoría actualizada correctamente",
+        description: "Salón actualizado correctamente",
       })
-      setCategoriaEditando(null)
+      setSalonEditando(null)
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo actualizar la categoría",
+        description: "No se pudo actualizar el salón",
         variant: "destructive",
       })
     }
   }
 
-  const handleDeleteCategoria = async () => {
-    if (!categoriaEliminando) return
+  const handleDeleteSalon = async () => {
+    if (!salonEliminando) return
     try {
-      const response = await fetch(`${API_URL}/delete/${categoriaEliminando.id_category}`, {
+      const response = await fetch(`${API_URL}/delete/${salonEliminando.idHalls}`, {
         method: "DELETE",
       })
-      if (!response.ok) throw new Error("Error al eliminar la categoría")
-      await fetchCategorias()
+      if (!response.ok) throw new Error("Error al eliminar el salón")
+      await fetchSalones()
       toast({
         title: "Éxito",
-        description: "Categoría eliminada correctamente",
+        description: "Salón eliminado correctamente",
       })
-      setCategoriaEliminando(null)
+      setSalonEliminando(null)
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo eliminar la categoría",
+        description: "No se pudo eliminar el salón",
         variant: "destructive",
       })
     }
   }
 
-  const categoriasFiltradas = categorias.filter((categoria) =>
-    categoria.name.toLowerCase().includes(busqueda.toLowerCase()),
+  const salonesFiltrados = salones.filter(
+    (salon) =>
+      salon.name.toLowerCase().includes(busqueda.toLowerCase()) || salon.capacity.toString().includes(busqueda),
   )
 
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
       <main className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-semibold mb-6">Gestión de Categorías</h1>
+        <h1 className="text-3xl font-semibold mb-6">Gestión de Salones</h1>
 
         <div className="flex justify-between items-center mb-4">
           <Dialog>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Añadir Categoría
+                Añadir Salón
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Añadir Nueva Categoría</DialogTitle>
+                <DialogTitle>Añadir Nuevo Salón</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleAddCategoria} className="space-y-4">
+              <form onSubmit={handleAddSalon} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Nombre</Label>
                   <Input id="name" name="name" required />
                 </div>
-                <Button type="submit">Guardar Categoría</Button>
+                <div>
+                  <Label htmlFor="capacity">Capacidad</Label>
+                  <Input id="capacity" name="capacity" type="number" required />
+                </div>
+                <Button type="submit">Guardar Salón</Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -198,7 +180,7 @@ export default function GestionCategorias() {
             <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input
               type="search"
-              placeholder="Buscar categorías..."
+              placeholder="Buscar salones..."
               className="pl-8"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
@@ -211,42 +193,43 @@ export default function GestionCategorias() {
             <TableRow>
               <TableHead>ID</TableHead>
               <TableHead>Nombre</TableHead>
+              <TableHead>Capacidad</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categoriasFiltradas.map((categoria) => (
-              <TableRow key={categoria.id_category}>
-                <TableCell>{categoria.id_category}</TableCell>
-                <TableCell>{categoria.name}</TableCell>
+            {salonesFiltrados.map((salon) => (
+              <TableRow key={salon.idHalls}>
+                <TableCell>{salon.idHalls}</TableCell>
+                <TableCell>{salon.name}</TableCell>
+                <TableCell>{salon.capacity}</TableCell>
                 <TableCell>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={() => setCategoriaEditando(categoria)}>
+                      <Button variant="outline" size="icon" onClick={() => setSalonEditando(salon)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Editar Categoría</DialogTitle>
+                        <DialogTitle>Editar Salón</DialogTitle>
                       </DialogHeader>
-                      <form onSubmit={handleEditCategoria} className="space-y-4">
+                      <form onSubmit={handleEditSalon} className="space-y-4">
                         <div>
                           <Label htmlFor="name">Nombre</Label>
-                          <Input id="name" name="name" defaultValue={categoria.name} required />
+                          <Input id="name" name="name" defaultValue={salon.name} required />
                         </div>
-                        <Button type="submit">Actualizar Categoría</Button>
+                        <div>
+                          <Label htmlFor="capacity">Capacidad</Label>
+                          <Input id="capacity" name="capacity" type="number" defaultValue={salon.capacity} required />
+                        </div>
+                        <Button type="submit">Actualizar Salón</Button>
                       </form>
                     </DialogContent>
                   </Dialog>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="ml-2"
-                        onClick={() => setCategoriaEliminando(categoria)}
-                      >
+                      <Button variant="outline" size="icon" className="ml-2" onClick={() => setSalonEliminando(salon)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
@@ -254,15 +237,15 @@ export default function GestionCategorias() {
                       <DialogHeader>
                         <DialogTitle>Confirmar Eliminación</DialogTitle>
                         <DialogDescription>
-                          ¿Estás seguro de que quieres eliminar la categoría "{categoriaEliminando?.name}"? Esta acción
-                          no se puede deshacer.
+                          ¿Estás seguro de que quieres eliminar el salón "{salonEliminando?.name}"? Esta acción no se
+                          puede deshacer.
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter>
-                        <Button variant="outline" onClick={() => setCategoriaEliminando(null)}>
+                        <Button variant="outline" onClick={() => setSalonEliminando(null)}>
                           Cancelar
                         </Button>
-                        <Button variant="destructive" onClick={handleDeleteCategoria}>
+                        <Button variant="destructive" onClick={handleDeleteSalon}>
                           Eliminar
                         </Button>
                       </DialogFooter>
