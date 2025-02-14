@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label"
 import { PlusCircle, Pencil, Trash2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
-// Tipo para el cliente
 type Cliente = {
   id_client: number
   name: string
