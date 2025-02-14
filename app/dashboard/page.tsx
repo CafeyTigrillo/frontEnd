@@ -16,7 +16,7 @@ export default function Dashboard() {
         >
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative z-10 h-full flex flex-col items-center justify-center text-white px-4">
-            <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">Bienvenido al Dashboard</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">Bienvenido al Juampa</h1>
             <p className="text-xl text-white/90 text-center max-w-2xl">
               Gestiona tu restaurante de manera eficiente con ChefLink
             </p>
