@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label"
 import { PlusCircle, Pencil, Trash2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
-// Tipo para el cliente
 type Cliente = {
   id_client: number
   name: string
@@ -29,7 +28,7 @@ type Cliente = {
   email: string
 }
 
-const API_URL = "http://ec2-13-216-183-248.compute-1.amazonaws.com:8081/clients"
+const API_URL = "http://34.196.60.192:8081/clients"
 
 export default function GestionClientes() {
   const [clientes, setClientes] = useState<Cliente[]>([])
