@@ -1,0 +1,41 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t epgarzonr/frontend:latest .
+          echo "${{ secrets.DOCKERHUB_PASSWORD_TEST }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME_TEST }}" --password-stdin
+          docker push epgarzonr/frontend:latest
+
+      - name: Deploy to EC2
+        run: |
+          echo "${{ secrets.AWS_SSH_KEY_TEST }}" > /tmp/key.pem
+          chmod 400 /tmp/key.pem
+          ssh -o StrictHostKeyChecking=no -i /tmp/key.pem ${{ secrets.AWS_USER_TEST }}@${{ secrets.AWS_HOST_TEST }} << 'EOF'
+            docker pull epgarzonr/frontend:latest
+
+            docker-compose pull
+
+            docker-compose up -d
+
+            exit
+          EOF
+
+
